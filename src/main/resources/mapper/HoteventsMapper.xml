@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yang.mapper.HoteventsMapper">
+    <sql id="page">
+        <where>
+            <if test="keyWord!=null and keyWord!=''">
+                keyWord like concat('%',#{keyWord},'%')
+            </if>
+        </where>
+    </sql>
+<select id="getLimit" resultType="com.yang.pojo.Hotevents">
+    select * from hotevents
+    <include refid="page"></include>
+    limit #{form},#{pageSize}
+</select>
+    <select id="getCount" resultType="int">
+        select count(*) from hotevents
+        <include refid="page"></include>
+    </select>
+
+    <select id="getByid" resultType="com.yang.pojo.Hotevents">
+        select * from hotevents where id=#{id}
+    </select>
+    <resultMap id="map1" type="com.yang.pojo.Hotevents">
+        <id column="id" property="id"></id>
+     <collection property="commentslist" ofType="com.yang.pojo.Comment" >
+         <id column="cid" property="id"></id>
+     </collection>
+    </resultMap>
+    <select id="getHotenentsByid" resultMap="map1">
+        SELECT h.*,c.id cid,c.hotId,c.notEventend,c.commentDate
+        FROM hotevents h LEFT JOIN `comment` c ON c.hotId=h.id
+        WHERE h.id=#{id} ORDER BY c.commentDate desc
+    </select>
+
+    <update id="update" parameterType="int">
+        update hotevents set searSum=searSum+1 where id=#{id}
+    </update>
+</mapper>
